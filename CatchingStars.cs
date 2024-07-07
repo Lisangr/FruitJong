@@ -17,6 +17,17 @@ public class CatchingStars : MonoBehaviour
 
     private void StarsColoring()
     {
+        if (PlayerPrefs.HasKey("Stars"))
+        {
+            currentStarsFromPlayerPrefs = PlayerPrefs.GetInt("Stars");
+        }
+        else
+        {
+            currentStarsFromPlayerPrefs = 0;
+            PlayerPrefs.SetInt("Stars", currentStarsFromPlayerPrefs);
+            PlayerPrefs.Save();
+        }
+
         if (timerBar.fillAmount < 0.62 && timerBar.fillAmount >= 0.41)
         {
             star3.color = Color.gray;
@@ -33,17 +44,6 @@ public class CatchingStars : MonoBehaviour
 
     public void OnClick()
     {
-        if (PlayerPrefs.HasKey("Stars"))
-        {
-            currentStarsFromPlayerPrefs = PlayerPrefs.GetInt("Stars");
-        }
-        else
-        {
-            currentStarsFromPlayerPrefs = 0;
-            PlayerPrefs.SetInt("Stars", currentStarsFromPlayerPrefs);
-            PlayerPrefs.Save();
-        }
-
         if (timerBar.fillAmount >= 0.62)
         {
             PlayerPrefs.SetInt("Stars", currentStarsFromPlayerPrefs + 3);
@@ -55,14 +55,17 @@ public class CatchingStars : MonoBehaviour
             PlayerPrefs.SetInt("Stars", currentStarsFromPlayerPrefs + 2);            
             PlayerPrefs.Save();            
         }
-        else if (timerBar.fillAmount < 0.41 && timerBar.fillAmount >= 0.21)
+        else if (timerBar.fillAmount < 0.41 && timerBar.fillAmount >= 0.11)
         {
+            star3.color = Color.gray;
             star2.color = Color.gray;
             PlayerPrefs.SetInt("Stars", currentStarsFromPlayerPrefs + +1);
             PlayerPrefs.Save();
         }
-        else if (timerBar.fillAmount < 0.21)
+        else if (timerBar.fillAmount < 0.11)
         {
+            star3.color = Color.gray;
+            star2.color = Color.gray;
             star1.color = Color.gray;
             PlayerPrefs.SetInt("Stars", currentStarsFromPlayerPrefs);
             PlayerPrefs.Save();            

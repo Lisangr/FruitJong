@@ -19,17 +19,23 @@ public class LevelGeneratorTriangle : MonoBehaviour
 
     private List<GameObject> tiles = new List<GameObject>();
     private int totalTileCount;
-    private Vector3 vertex1 = new Vector3(50, 250, 0);
-    private Vector3 vertex2 = new Vector3(-200, -250, 0);
-    private Vector3 vertex3 = new Vector3(300, -250, 0);
+    private Vector3 vertex1 = new Vector3(350, 550, 0);
+    private Vector3 vertex2 = new Vector3(-400, -450, 0);
+    private Vector3 vertex3 = new Vector3(500, -450, 0);
 
     void Start()
-    {
-        //AdjustTotalTileCount();
+    {/*
         CreateTiles();
-        LayoutTiles();
-        //LayoutTilesInTriangularPattern();
+        LayoutTiles();     
         ShuffleTiles();
+        AssignLayers();
+       */
+        CreateTiles();
+        ShuffleTiles();
+        
+        // Размещаем плитки
+        //LayoutTiles();
+        LayoutTilesInTriangularPattern();
         AssignLayers();
     }
 

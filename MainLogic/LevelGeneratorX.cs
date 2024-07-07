@@ -19,11 +19,18 @@ public class LevelGeneratorX : MonoBehaviour
 
     private List<GameObject> tiles = new List<GameObject>();
     void Start()
-    {
+    {// Создаем плитки
+        CreateTiles();
+        ShuffleTiles();
+        //LayoutTilesInCircularPattern();
+        // Размещаем плитки
+        LayoutTiles();
+        AssignLayers();
+        /*
         CreateTiles();
         LayoutTiles();
         ShuffleTiles();
-        AssignLayers();
+        AssignLayers();*/
     }
 
     // Создает плитки и добавляет их в список

@@ -8,6 +8,9 @@ public class LevelsLayers : MonoBehaviour
     public string deacLevel1Name;
     public string deacLevel2Name;
     public string deacLevel3Name;
+    public string deacLevel4Name;
+    public string deacLevel5Name;
+
     public string defaultLayerName = "CliclLevel0";  // Слой, который активен изначально
     public GameObject winPanel;
 
@@ -58,7 +61,8 @@ public class LevelsLayers : MonoBehaviour
     void Start()
     {
         winPanel.SetActive(false);
-        layerNames = new List<string> { deacLevel0Name, deacLevel1Name, deacLevel2Name, deacLevel3Name };
+        layerNames = new List<string> { deacLevel0Name, deacLevel1Name, deacLevel2Name, deacLevel3Name,
+        deacLevel4Name, deacLevel5Name};
 
         foreach (string layerName in layerNames)
         {

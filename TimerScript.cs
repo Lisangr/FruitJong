@@ -40,11 +40,11 @@ public class TimerScript : MonoBehaviour
         {
             star3.color = Color.gray;
         }
-        else if (timerBar.fillAmount < 0.41 && timerBar.fillAmount >= 0.21)
+        else if (timerBar.fillAmount < 0.41 && timerBar.fillAmount >= 0.11)
         {          
             star2.color = Color.gray;
         }
-        else if (timerBar.fillAmount < 0.21)
+        else if (timerBar.fillAmount < 0.11)
         {
             star1.color = Color.gray;
         }

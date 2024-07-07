@@ -17,7 +17,10 @@ public class LevelGenerator : MonoBehaviour
     public string deacLevel1Name;
     public string deacLevel2Name;
     public string deacLevel3Name;
-    public string defaultLayerName = "ClickLevel0";
+    public string deacLevel4Name;
+    public string deacLevel5Name;
+
+    //public string defaultLayerName = "ClickLevel0";
 
     // Список плиток
     private List<GameObject> tiles = new List<GameObject>();
@@ -25,13 +28,12 @@ public class LevelGenerator : MonoBehaviour
     void Start()
     {
         // Создаем плитки
-        CreateTiles();
-
+        CreateTiles();        
+        ShuffleTiles();        
+        //LayoutTilesInCircularPattern();
         // Размещаем плитки
         LayoutTiles();
-
-        //ShuffleTiles();
-        //AssignLayers();
+        AssignLayers();
     }
 
     // Создает плитки и добавляет их в список
@@ -64,7 +66,8 @@ public class LevelGenerator : MonoBehaviour
     // Размещает плитки по уровням
     private void LayoutTiles()
     {
-        string[] layerNames = { deacLevel0Name, deacLevel1Name, deacLevel2Name, deacLevel3Name };
+        string[] layerNames = { deacLevel0Name, deacLevel1Name, deacLevel2Name, deacLevel3Name,
+        deacLevel4Name, deacLevel5Name};
         int tileIndex = 0;
 
         for (int layerIndex = layerNames.Length - 1; layerIndex >= 0; layerIndex--)
@@ -145,7 +148,8 @@ public class LevelGenerator : MonoBehaviour
 
     private void AssignLayers()
     {
-        string[] layerNames = { deacLevel0Name, deacLevel1Name, deacLevel2Name, deacLevel3Name };
+        string[] layerNames = { deacLevel0Name, deacLevel1Name, deacLevel2Name, deacLevel3Name,
+        deacLevel4Name, deacLevel5Name};
         int totalLayers = layerNames.Length;
         int tilesPerLayer = totalTileCount / totalLayers;
 

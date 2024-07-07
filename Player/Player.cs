@@ -37,7 +37,7 @@ public class Player : MonoBehaviour
 
         Vector3 moveDirection = cameraController.GetCameraForward() * vInput 
             + cameraController.GetCameraRight() * hInput;
-        moveDirection *= Time.deltaTime;
+        moveDirection *= Time.fixedDeltaTime;
 
         rb.MovePosition(this.transform.position + moveDirection);
     }
