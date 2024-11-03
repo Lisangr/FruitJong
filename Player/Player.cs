@@ -31,7 +31,6 @@ public class Player : MonoBehaviour
 
     void Move()
     {
-
         float vInput = Input.GetAxis("Vertical") * moveSpeed;
         float hInput = Input.GetAxis("Horizontal") * moveSpeed;
 

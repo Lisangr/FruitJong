@@ -18,7 +18,7 @@ public class LevelGeneratorX : MonoBehaviour
     public string defaultLayerName = "ClickLevel0";
 
     private List<GameObject> tiles = new List<GameObject>();
-    void Start()
+    void OnEnable()
     {// Создаем плитки
         CreateTiles();
         ShuffleTiles();

@@ -16,6 +16,7 @@ public class TimerScript : MonoBehaviour
     void Start()
     {
         currentTime = initialTime;
+        Time.timeScale = 1f;
         defeatPanel.SetActive(false);        
     }
     void Update()
@@ -51,7 +52,7 @@ public class TimerScript : MonoBehaviour
         // Проверка, достигли ли мы нуля
         if (currentTime <= 0)
         {
-            Time.timeScale = 0;
+            //Time.timeScale = 0;
             currentTime = 0;
             defeatPanel.SetActive(true);
         }

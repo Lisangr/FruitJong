@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using YG;
 
 public class CatchingStars : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class CatchingStars : MonoBehaviour
     public Image star3;
     public string sceneName;
     private int currentStarsFromPlayerPrefs;
+    private int _currentStars;
     private void Update()
     {
         StarsColoring();
@@ -72,5 +74,21 @@ public class CatchingStars : MonoBehaviour
         }
 
         SceneManager.LoadScene(sceneName);
+    }
+    public void SaveStars()
+    {
+        _currentStars = PlayerPrefs.GetInt("Stars", _currentStars);
+        if (_currentStars >= PlayerPrefs.GetInt("Stars"))
+        {                        
+            PlayerPrefs.SetInt("Stars", _currentStars);
+            MySaves();
+            PlayerPrefs.Save();
+        }
+    }
+    public void MySaves()
+    {
+        YandexGame.savesData.stars = _currentStars;
+        YandexGame.SaveProgress();
+        YandexGame.NewLeaderboardScores("Stars", _currentStars);
     }
 }

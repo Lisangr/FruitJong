@@ -23,7 +23,7 @@ public class LevelGeneratorTriangle : MonoBehaviour
     private Vector3 vertex2 = new Vector3(-400, -450, 0);
     private Vector3 vertex3 = new Vector3(500, -450, 0);
 
-    void Start()
+    void OnEnable()
     {/*
         CreateTiles();
         LayoutTiles();     

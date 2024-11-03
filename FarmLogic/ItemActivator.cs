@@ -1,81 +1,90 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class ItemActivator : MonoBehaviour
 {
-    public GameObject hiddenObject; // Ссылка на скрытый объект
+    public GameObject hiddenObject; // Ссылка на скрытый объект или родительский объект группы
     public KeyCode activationKey = KeyCode.F; // Клавиша для активации
-    
+ 
+
     private SphereCollider sphereCollider;
     private MeshRenderer meshRenderer;
     private Color initialColor;
-    private bool isActivated = false;   
+    private bool isActivated = false;
+
+    private const string ActivatedObjectsKey = "ActivatedObjects";
+
     void Start()
     {
         sphereCollider = GetComponent<SphereCollider>();
-        // Получаем компонент MeshRenderer и начальный цвет объекта
+
         if (hiddenObject != null)
         {
-            hiddenObject.SetActive(false);
+            SetActiveRecursive(hiddenObject, false); // Деактивируем все дочерние объекты
             meshRenderer = hiddenObject.GetComponent<MeshRenderer>();
-            initialColor = meshRenderer.material.color;
+            if (meshRenderer != null)
+                initialColor = meshRenderer.material.color;
+        }
+
+        // Проверка состояния объектов в памяти
+        if (hiddenObject != null && IsObjectActivated(hiddenObject.name))
+        {
+            ActivateHiddenObject(); // Активируем группу объектов
+            isActivated = true;
+        }
+
+        if (IsObjectActivated(gameObject.name))
+        {
+            Destroy(gameObject); // Удаляем табличку, если она уже активирована
         }
     }
 
     void OnTriggerEnter(Collider other)
     {
-        // Проверяем, что это игрок вошел в триггер
         if (other.CompareTag("Player") && hiddenObject != null)
         {
-            hiddenObject.SetActive(true); // Активируем объект
-            SetObjectTransparency(0.5f); // Устанавливаем прозрачность на 50%
+            SetActiveRecursive(hiddenObject, true);
+            SetObjectTransparency(0.5f);
         }
     }
 
     void OnTriggerExit(Collider other)
     {
-        // Проверяем, что это игрок вышел из триггера
         if (other.CompareTag("Player") && hiddenObject != null)
         {
-            if (isActivated)
-            {
-                hiddenObject.SetActive(true);                
-            }
-            else
-            {
-                hiddenObject.SetActive(false); // Деактивируем объект
-                isActivated = false;
-            }
+            SetActiveRecursive(hiddenObject, isActivated);
         }
     }
 
     void Update()
     {
-        if (!isActivated)
+        if (!isActivated && BuyItem.canBuy) // Проверяем флаг canBuy
         {
-            // Проверяем, что объект активен и нажата клавиша активации
             if (hiddenObject != null && hiddenObject.activeSelf && Input.GetKeyDown(activationKey))
             {
-                SetObjectTransparency(1.0f); // Устанавливаем прозрачность на 100%
+                SetObjectTransparency(1.0f);
                 isActivated = true;
                 sphereCollider.enabled = false;
-                Destroy(this.gameObject);
+
+                SaveObjectActivation(hiddenObject.name);
+                SaveObjectActivation(gameObject.name);
+
+                Destroy(gameObject);
             }
         }
     }
 
-    // Метод для установки прозрачности объекта
     private void SetObjectTransparency(float alpha)
     {
         if (meshRenderer != null)
         {
             Color color = meshRenderer.material.color;
-            color.a = alpha; // Устанавливаем прозрачность
+            color.a = alpha;
             meshRenderer.material.color = color;
 
-            // Убедитесь, что материал поддерживает прозрачность
             if (alpha < 1.0f)
             {
-                meshRenderer.material.SetFloat("_Mode", 2); // Задаем режим прозрачности
+                meshRenderer.material.SetFloat("_Mode", 2);
                 meshRenderer.material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
                 meshRenderer.material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
                 meshRenderer.material.SetInt("_ZWrite", 0);
@@ -86,7 +95,7 @@ public class ItemActivator : MonoBehaviour
             }
             else
             {
-                meshRenderer.material.SetFloat("_Mode", 0); // Возвращаем режим непрозрачности
+                meshRenderer.material.SetFloat("_Mode", 0);
                 meshRenderer.material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
                 meshRenderer.material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
                 meshRenderer.material.SetInt("_ZWrite", 1);
@@ -97,59 +106,48 @@ public class ItemActivator : MonoBehaviour
             }
         }
     }
-    /*
-    public GameObject hiddenObject; // Ссылка на скрытый объект
-    public KeyCode activationKey = KeyCode.F; // Клавиша для активации
 
-    private MeshRenderer meshRenderer;
-    private Color initialColor;
-
-    void Start()
+    private void SaveObjectActivation(string objectName)
     {
-        // Получаем компонент MeshRenderer и начальный цвет объекта
-        if (hiddenObject != null)
+        string savedData = PlayerPrefs.GetString(ActivatedObjectsKey, "");
+        List<string> activatedObjects = new List<string>(savedData.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries));
+
+        if (!activatedObjects.Contains(objectName))
         {
-            meshRenderer = hiddenObject.GetComponent<MeshRenderer>();
-            initialColor = meshRenderer.material.color;
+            activatedObjects.Add(objectName);
         }
+
+        PlayerPrefs.SetString(ActivatedObjectsKey, string.Join(",", activatedObjects));
+        PlayerPrefs.Save();
+
+        // Отладка
+        Debug.Log($"Сохранено состояние объекта {objectName}. Текущий список: {string.Join(",", activatedObjects)}");
     }
 
-    void OnTriggerEnter(Collider other)
+    private bool IsObjectActivated(string objectName)
     {
-        // Проверяем, что это игрок вошел в триггер
-        if (other.CompareTag("Player") && hiddenObject != null)
-        {
-            hiddenObject.SetActive(true); // Активируем объект
-            SetObjectTransparency(0.5f); // Устанавливаем прозрачность на 50%
-        }
+        string savedData = PlayerPrefs.GetString(ActivatedObjectsKey, "");
+        List<string> activatedObjects = new List<string>(savedData.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries));
+
+        bool isActivated = activatedObjects.Contains(objectName);
+        Debug.Log($"Проверка состояния объекта {objectName}: {isActivated}");
+        return isActivated;
     }
 
-    void OnTriggerExit(Collider other)
+    private void ActivateHiddenObject()
     {
-        // Проверяем, что это игрок вышел из триггера
-        if (other.CompareTag("Player") && hiddenObject != null)
-        {
-            hiddenObject.SetActive(false); // Деактивируем объект
-        }
+        SetActiveRecursive(hiddenObject, true); // Активируем все дочерние объекты
+        SetObjectTransparency(1.0f);
+        sphereCollider.enabled = false;
     }
 
-    void Update()
+    // Вспомогательный метод для активации/деактивации всех дочерних объектов
+    private void SetActiveRecursive(GameObject obj, bool state)
     {
-        // Проверяем, что объект активен и нажата клавиша активации
-        if (hiddenObject != null && hiddenObject.activeSelf && Input.GetKeyDown(activationKey))
+        obj.SetActive(state);
+        foreach (Transform child in obj.transform)
         {
-            SetObjectTransparency(1.0f); // Устанавливаем прозрачность на 100%
+            child.gameObject.SetActive(state);
         }
     }
-
-    // Метод для установки прозрачности объекта
-    private void SetObjectTransparency(float alpha)
-    {
-        if (meshRenderer != null)
-        {
-            Color color = initialColor;
-            color.a = alpha; // Устанавливаем прозрачность
-            meshRenderer.material.color = color;
-        }
-    }*/
 }

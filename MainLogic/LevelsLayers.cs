@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,10 +13,12 @@ public class LevelsLayers : MonoBehaviour
     public string deacLevel5Name;
 
     public string defaultLayerName = "CliclLevel0";  // Слой, который активен изначально
-    public GameObject winPanel;
 
     private List<string> layerNames;
     private int currentLevelIndex = -1;
+
+    public delegate void EndLevelAction();
+    public static event EndLevelAction OnLevelEnd;
 
     public static List<GameObject> FindGameObjectsWithLayerMasks(List<int> layers)
     {
@@ -57,12 +60,12 @@ public class LevelsLayers : MonoBehaviour
             }
         }
     }
-
+    
     void Start()
     {
-        winPanel.SetActive(false);
-        layerNames = new List<string> { deacLevel0Name, deacLevel1Name, deacLevel2Name, deacLevel3Name,
-        deacLevel4Name, deacLevel5Name};
+        //yield return new WaitForEndOfFrame(); // Ждем один кадр для завершения инициализации
+
+        layerNames = new List<string> { deacLevel0Name, deacLevel1Name, deacLevel2Name, deacLevel3Name, deacLevel4Name, deacLevel5Name };
 
         foreach (string layerName in layerNames)
         {
@@ -80,9 +83,7 @@ public class LevelsLayers : MonoBehaviour
 
         // Не вызываем ActivateNextLevel() напрямую
         CheckAndActivateNextLevel();
-        //ActivateNextLevel();
     }
-
     void Update()
     {
         CheckAndActivateNextLevel();
@@ -93,7 +94,7 @@ public class LevelsLayers : MonoBehaviour
         currentLevelIndex++;
         if (currentLevelIndex >= layerNames.Count)
         {
-            winPanel.SetActive(true);
+            OnLevelEnd?.Invoke();
             Time.timeScale = 0f;
             return;
         }

@@ -19,7 +19,7 @@ public class LevelGeneratorHexagon : MonoBehaviour
     private int totalTileCount;
     private float xOffset = 300f;
 
-    void Start()
+    void OnEnable()
     {
         // Создаем плитки
         CreateTiles();
