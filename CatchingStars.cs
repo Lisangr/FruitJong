@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using YG;
+//using YG;
 
 public class CatchingStars : MonoBehaviour
 {
@@ -46,6 +46,7 @@ public class CatchingStars : MonoBehaviour
 
     public void OnClick()
     {
+        //YandexGame.FullscreenShow();
         if (timerBar.fillAmount >= 0.62)
         {
             PlayerPrefs.SetInt("Stars", currentStarsFromPlayerPrefs + 3);
@@ -81,14 +82,7 @@ public class CatchingStars : MonoBehaviour
         if (_currentStars >= PlayerPrefs.GetInt("Stars"))
         {                        
             PlayerPrefs.SetInt("Stars", _currentStars);
-            MySaves();
             PlayerPrefs.Save();
         }
-    }
-    public void MySaves()
-    {
-        YandexGame.savesData.stars = _currentStars;
-        YandexGame.SaveProgress();
-        YandexGame.NewLeaderboardScores("Stars", _currentStars);
     }
 }

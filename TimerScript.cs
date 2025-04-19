@@ -1,13 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class TimerScript : MonoBehaviour
 {
     public Image timerBar; // Ссылка на Image компонент
     public float initialTime = 30f; // Начальное время
     public GameObject defeatPanel;
-    public TextMeshProUGUI timeText;
+    public Text timeText;
     public Image star1;
     public Image star2;
     public Image star3;

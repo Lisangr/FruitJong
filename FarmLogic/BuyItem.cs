@@ -1,51 +1,83 @@
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BuyItem : MonoBehaviour
 {
     public int price;
     public GameObject decline;
     public KeyCode activationKey = KeyCode.F;
-    public TextMeshProUGUI textMeshProUGUI;
+    public Text textMeshProUGUI;
+    
+    // UI СЌР»РµРјРµРЅС‚С‹ РґР»СЏ С‚Р°РїР° РїРѕ СЌРєСЂР°РЅСѓ
+    public Button buyButton;
+    public GameObject buyButtonContainer;
 
-    public static bool canBuy = false; // Статический флаг для синхронизации покупок
+    public static bool canBuy = false; // РїРµСЂРµРјРµРЅРЅР°СЏ С„Р»Р°Рі РґР»СЏ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РїРѕРєСѓРїРєРё
     private bool isInTrigger = false;
     private Wallet wallet;
+    
     void OnEnable()
     {
         textMeshProUGUI.text = price.ToString();
 
         wallet = FindObjectOfType<Wallet>();
         decline.gameObject.SetActive(false);
-        Debug.Log("Начальное количество звёзд: " + PlayerPrefs.GetInt("Stars"));
+        
+        // РќР°СЃС‚СЂР°РёРІР°РµРј РєРЅРѕРїРєСѓ РїРѕРєСѓРїРєРё
+        if (buyButton != null)
+        {
+            buyButton.onClick.AddListener(TryBuyItem);
+            SetBuyButtonVisible(false);
+        }
+        
+        Debug.Log("Р—Р°РіСЂСѓР¶Р°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ Р·РІРµР·Рґ: " + PlayerPrefs.GetInt("Stars"));
+    }
+    
+    void OnDisable()
+    {
+        // РћС‚РїРёСЃС‹РІР°РµРјСЃСЏ РѕС‚ СЃРѕР±С‹С‚РёСЏ РєР»РёРєР° РїРѕ РєРЅРѕРїРєРµ
+        if (buyButton != null)
+        {
+            buyButton.onClick.RemoveListener(TryBuyItem);
+        }
     }
 
     void Update()
     {
         if (isInTrigger)
         {
+            // РџРѕРґРґРµСЂР¶РёРІР°РµРј СЃС‚Р°СЂС‹Р№ СЃРїРѕСЃРѕР± С‡РµСЂРµР· РєР»Р°РІРёС€Сѓ
             if (Input.GetKeyDown(activationKey))
             {
-                int currentStars = PlayerPrefs.GetInt("Stars"); // Всегда считываем актуальное количество звёзд
-                Debug.Log("Текущее количество звёзд перед покупкой: " + currentStars);
-
-                if (currentStars >= price)
-                {
-                    currentStars -= price;
-                    PlayerPrefs.SetInt("Stars", currentStars);
-                    PlayerPrefs.Save();
-                    Debug.Log("Оставшиеся звёзды после покупки: " + currentStars);
-                    wallet.GetStars();
-                    decline.gameObject.SetActive(false);
-                    canBuy = true; // Разрешаем покупку, устанавливаем флаг
-                }
-                else
-                {
-                    Debug.LogWarning("Недостаточно звёзд для покупки");
-                    decline.gameObject.SetActive(true); // Показываем decline, если недостаточно звёзд
-                    canBuy = false; // Отключаем флаг, если покупка невозможна
-                }
+                TryBuyItem();
             }
+        }
+    }
+    
+    // РњРµС‚РѕРґ РґР»СЏ РїРѕРїС‹С‚РєРё РїРѕРєСѓРїРєРё
+    public void TryBuyItem()
+    {
+        int currentStars = PlayerPrefs.GetInt("Stars"); // РїРѕР»СѓС‡Р°РµРј Р°РєС‚СѓР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРѕР±СЂР°РЅРЅС‹С… Р·РІРµР·Рґ
+        Debug.Log("РўРµРєСѓС‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р·РІРµР·Рґ РїРµСЂРµРґ РїРѕРєСѓРїРєРѕР№: " + currentStars);
+
+        if (currentStars >= price)
+        {
+            currentStars -= price;
+            PlayerPrefs.SetInt("Stars", currentStars);
+            PlayerPrefs.Save();
+            Debug.Log("РљРѕР»РёС‡РµСЃС‚РІРѕ Р·РІРµР·Рґ РїРѕСЃР»Рµ РїРѕРєСѓРїРєРё: " + currentStars);
+            wallet.GetStars();
+            decline.gameObject.SetActive(false);
+            canBuy = true; // Р Р°Р·СЂРµС€Р°РµРј РїРѕРєСѓРїРєСѓ, СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј С„Р»Р°Рі
+            
+            // РЎРєСЂС‹РІР°РµРј РєРЅРѕРїРєСѓ РїРѕРєСѓРїРєРё
+            SetBuyButtonVisible(false);
+        }
+        else
+        {
+            Debug.LogWarning("РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р·РІРµР·Рґ РґР»СЏ РїРѕРєСѓРїРєРё");
+            decline.gameObject.SetActive(true); // РџРѕРєР°Р·С‹РІР°РµРј decline, РµСЃР»Рё РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р·РІРµР·Рґ
+            canBuy = false; // Р‘Р»РѕРєРёСЂСѓРµРј С„Р»Р°Рі, РµСЃР»Рё РїРѕРєСѓРїРєР° РЅРµРІРѕР·РјРѕР¶РЅР°
         }
     }
 
@@ -54,7 +86,10 @@ public class BuyItem : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isInTrigger = true;
-            Debug.Log("Игрок в зоне покупки. Цена: " + price);
+            Debug.Log("Р’РѕС€Р»Рё РІ Р·РѕРЅСѓ РїРѕРєСѓРїРєРё. Р¦РµРЅР°: " + price);
+            
+            // РџРѕРєР°Р·С‹РІР°РµРј РєРЅРѕРїРєСѓ РїРѕРєСѓРїРєРё
+            SetBuyButtonVisible(true);
         }
     }
 
@@ -64,8 +99,20 @@ public class BuyItem : MonoBehaviour
         {
             isInTrigger = false;
             decline.gameObject.SetActive(false);
-            canBuy = false; // Сбрасываем флаг, если игрок уходит
-            Debug.Log("Игрок покинул зону покупки.");
+            canBuy = false; // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°Рі, РµСЃР»Рё РёРіСЂРѕРє РІС‹С€РµР»
+            Debug.Log("РРіСЂРѕРє РїРѕРєРёРЅСѓР» Р·РѕРЅСѓ РїРѕРєСѓРїРєРё.");
+            
+            // РЎРєСЂС‹РІР°РµРј РєРЅРѕРїРєСѓ РїРѕРєСѓРїРєРё
+            SetBuyButtonVisible(false);
+        }
+    }
+    
+    // РњРµС‚РѕРґ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ/СЃРєСЂС‹С‚РёСЏ РєРЅРѕРїРєРё РїРѕРєСѓРїРєРё
+    private void SetBuyButtonVisible(bool isVisible)
+    {
+        if (buyButtonContainer != null)
+        {
+            buyButtonContainer.SetActive(isVisible);
         }
     }
 }

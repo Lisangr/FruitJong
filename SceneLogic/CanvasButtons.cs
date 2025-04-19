@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+//using YG;
 public class CanvasButtons : MonoBehaviour
 {
     public string scene = "";
@@ -38,14 +38,17 @@ public class CanvasButtons : MonoBehaviour
     }
     public void onClickStart()
     {
+        //YandexGame.FullscreenShow();
         SceneManager.LoadScene(scene, LoadSceneMode.Single);
     }
     public void onClickBuildStart()
     {
+        //YandexGame.FullscreenShow();
         SceneManager.LoadScene(sceneBuild, LoadSceneMode.Single);
     }
     public void RestartCurrentScene()
     {
+        //YG.YandexGame.FullscreenShow();
         // Получаем индекс текущей сцены
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         // Перезагружаем сцену по её индексу

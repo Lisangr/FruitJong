@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 public class ItemActivator : MonoBehaviour
 {
-    public GameObject hiddenObject; // Ссылка на скрытый объект или родительский объект группы
-    public KeyCode activationKey = KeyCode.F; // Клавиша для активации
+    public GameObject hiddenObject; // РЎСЃС‹Р»РєР° РЅР° РІРЅРµС€РЅРёР№ РѕР±СЉРµРєС‚ РґР»СЏ Р°РєС‚РёРІРёСЂРѕРІР°РЅРёСЏ РїРѕСЃР»Рµ РїРѕРєСѓРїРєРё
+    public KeyCode activationKey = KeyCode.F; // РљР»Р°РІРёС€Р° РґР»СЏ Р°РєС‚РёРІР°С†РёРё
  
-
     private SphereCollider sphereCollider;
     private MeshRenderer meshRenderer;
     private Color initialColor;
     private bool isActivated = false;
+    private bool isPlayerInRange = false;
 
     private const string ActivatedObjectsKey = "ActivatedObjects";
 
@@ -20,22 +20,22 @@ public class ItemActivator : MonoBehaviour
 
         if (hiddenObject != null)
         {
-            SetActiveRecursive(hiddenObject, false); // Деактивируем все дочерние объекты
+            SetActiveRecursive(hiddenObject, false); // Р”РµР°РєС‚РёРІРёСЂСѓРµРј РїСЂРё Р·Р°РіСЂСѓР·РєРµ РѕР±СЉРµРєС‚Р°
             meshRenderer = hiddenObject.GetComponent<MeshRenderer>();
             if (meshRenderer != null)
                 initialColor = meshRenderer.material.color;
         }
 
-        // Проверка состояния объектов в памяти
+        // РџСЂРѕРІРµСЂСЏРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ РѕР±СЉРµРєС‚РѕРІ РІ РїР°РјСЏС‚Рё
         if (hiddenObject != null && IsObjectActivated(hiddenObject.name))
         {
-            ActivateHiddenObject(); // Активируем группу объектов
+            ActivateHiddenObject(); // РђРєС‚РёРІРёСЂСѓРµРј РЅСѓР¶РЅС‹Рµ СЌР»РµРјРµРЅС‚С‹
             isActivated = true;
         }
 
         if (IsObjectActivated(gameObject.name))
         {
-            Destroy(gameObject); // Удаляем табличку, если она уже активирована
+            Destroy(gameObject); // РЈРґР°Р»СЏРµРј Р°РєС‚РёРІР°С‚РѕСЂ, РµСЃР»Рё РѕРЅ СѓР¶Рµ Р°РєС‚РёРІРёСЂРѕРІР°РЅ
         }
     }
 
@@ -43,6 +43,7 @@ public class ItemActivator : MonoBehaviour
     {
         if (other.CompareTag("Player") && hiddenObject != null)
         {
+            isPlayerInRange = true;
             SetActiveRecursive(hiddenObject, true);
             SetObjectTransparency(0.5f);
         }
@@ -52,25 +53,48 @@ public class ItemActivator : MonoBehaviour
     {
         if (other.CompareTag("Player") && hiddenObject != null)
         {
+            isPlayerInRange = false;
             SetActiveRecursive(hiddenObject, isActivated);
         }
     }
 
     void Update()
     {
-        if (!isActivated && BuyItem.canBuy) // Проверяем флаг canBuy
+        // РџСЂРѕРІРµСЂСЏРµРј С„Р»Р°Рі РїРѕРєСѓРїРєРё Рё РЅР°Р¶Р°С‚РёРµ РєРЅРѕРїРєРё Р°РєС‚РёРІР°С†РёРё (РєР»Р°РІРёР°С‚СѓСЂР°)
+        if (!isActivated && isPlayerInRange)
         {
-            if (hiddenObject != null && hiddenObject.activeSelf && Input.GetKeyDown(activationKey))
+            if (BuyItem.canBuy) // РџСЂРѕРІРµСЂСЏРµРј С„Р»Р°Рі canBuy
             {
-                SetObjectTransparency(1.0f);
-                isActivated = true;
-                sphereCollider.enabled = false;
-
-                SaveObjectActivation(hiddenObject.name);
-                SaveObjectActivation(gameObject.name);
-
-                Destroy(gameObject);
+                if (hiddenObject != null && hiddenObject.activeSelf)
+                {
+                    // РђРєС‚РёРІРёСЂСѓРµРј РѕР±СЉРµРєС‚ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РїРѕСЃР»Рµ РїРѕРєСѓРїРєРё
+                    ActivateObjectPermanently();
+                }
             }
+            else if (Input.GetKeyDown(activationKey)) // РџРѕРґРґРµСЂР¶РёРІР°РµРј СЃС‚Р°СЂС‹Р№ РјРµС‚РѕРґ Р°РєС‚РёРІР°С†РёРё С‡РµСЂРµР· РєР»Р°РІРёС€Сѓ
+            {
+                // Р—РґРµСЃСЊ РјС‹ РїСЂРѕСЃС‚Рѕ РїРѕРєР°Р·С‹РІР°РµРј, С‡С‚Рѕ РЅСѓР¶РЅРѕ РїСЂРёРѕР±СЂРµСЃС‚Рё РѕР±СЉРµРєС‚
+                Debug.Log("РћР±СЉРµРєС‚ РЅСѓР¶РЅРѕ РїСЂРёРѕР±СЂРµСЃС‚Рё!");
+            }
+        }
+    }
+
+    // РџСѓР±Р»РёС‡РЅС‹Р№ РјРµС‚РѕРґ РґР»СЏ Р°РєС‚РёРІР°С†РёРё РѕР±СЉРµРєС‚Р° РёР· UI
+    public void ActivateObjectPermanently()
+    {
+        if (!isActivated && BuyItem.canBuy)
+        {
+            SetObjectTransparency(1.0f);
+            isActivated = true;
+            sphereCollider.enabled = false;
+
+            SaveObjectActivation(hiddenObject.name);
+            SaveObjectActivation(gameObject.name);
+
+            // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°Рі РїРѕРєСѓРїРєРё
+            BuyItem.canBuy = false;
+
+            Destroy(gameObject);
         }
     }
 
@@ -120,8 +144,8 @@ public class ItemActivator : MonoBehaviour
         PlayerPrefs.SetString(ActivatedObjectsKey, string.Join(",", activatedObjects));
         PlayerPrefs.Save();
 
-        // Отладка
-        Debug.Log($"Сохранено состояние объекта {objectName}. Текущий список: {string.Join(",", activatedObjects)}");
+        // РћС‚Р»Р°РґРєР°
+        Debug.Log($"РЎРѕС…СЂР°РЅРёР»Рё Р°РєС‚РёРІР°С†РёСЋ РѕР±СЉРµРєС‚Р° {objectName}. РўРµРєСѓС‰РёР№ СЃРїРёСЃРѕРє: {string.Join(",", activatedObjects)}");
     }
 
     private bool IsObjectActivated(string objectName)
@@ -130,18 +154,18 @@ public class ItemActivator : MonoBehaviour
         List<string> activatedObjects = new List<string>(savedData.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries));
 
         bool isActivated = activatedObjects.Contains(objectName);
-        Debug.Log($"Проверка состояния объекта {objectName}: {isActivated}");
+        Debug.Log($"РџСЂРѕРІРµСЂРєР° Р°РєС‚РёРІР°С†РёРё РѕР±СЉРµРєС‚Р° {objectName}: {isActivated}");
         return isActivated;
     }
 
     private void ActivateHiddenObject()
     {
-        SetActiveRecursive(hiddenObject, true); // Активируем все дочерние объекты
+        SetActiveRecursive(hiddenObject, true); // РђРєС‚РёРІРёСЂСѓРµРј РІСЃРµ РґРѕС‡РµСЂРЅРёРµ РѕР±СЉРµРєС‚С‹
         SetObjectTransparency(1.0f);
         sphereCollider.enabled = false;
     }
 
-    // Вспомогательный метод для активации/деактивации всех дочерних объектов
+    // Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ РґР»СЏ РІРєР»СЋС‡РµРЅРёСЏ/РІС‹РєР»СЋС‡РµРЅРёСЏ РІСЃРµС… РґРѕС‡РµСЂРЅРёС… РѕР±СЉРµРєС‚РѕРІ
     private void SetActiveRecursive(GameObject obj, bool state)
     {
         obj.SetActive(state);

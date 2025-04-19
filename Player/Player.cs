@@ -5,6 +5,9 @@ public class Player : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public CameraControllerForMainCamera cameraController;
+    
+    // Ссылка на визуальный джойстик
+    public Joystick moveJoystick;
 
     private Rigidbody rb;
     private Transform player;
@@ -31,8 +34,15 @@ public class Player : MonoBehaviour
 
     void Move()
     {
-        float vInput = Input.GetAxis("Vertical") * moveSpeed;
-        float hInput = Input.GetAxis("Horizontal") * moveSpeed;
+        // Получаем ввод от джойстика или используем нулевое значение, если джойстик не назначен
+        float vInput = 0f;
+        float hInput = 0f;
+        
+        if (moveJoystick != null)
+        {
+            vInput = moveJoystick.Vertical * moveSpeed;
+            hInput = moveJoystick.Horizontal * moveSpeed;
+        }
 
         Vector3 moveDirection = cameraController.GetCameraForward() * vInput 
             + cameraController.GetCameraRight() * hInput;

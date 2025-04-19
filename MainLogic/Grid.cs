@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
 
 [System.Serializable]
     public class TagPoints
@@ -13,7 +13,7 @@ using TMPro;
 public class Grid : MonoBehaviour
 {
     [SerializeField] private List<TagPoints> pointsPerTagList = new List<TagPoints>(); // Список тегов и очков для задания через инспектор
-    [SerializeField] private TextMeshProUGUI scoreText; // Поле для вывода текста
+    [SerializeField] private Text scoreText; // Поле для вывода текста
     [SerializeField] private GameObject defeatPanel; // Панель для окна "Game Over"
 
     private Dictionary<string, int> pointsPerTag; // Словарь тегов и очков
